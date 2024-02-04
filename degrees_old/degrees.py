@@ -83,50 +83,6 @@ def main():
             movie = movies[path[i + 1][0]]["title"]
             print(f"{i + 1}: {person1} and {person2} starred in {movie}")
 
-
-def shortest_path(source, target):
-    """
-    Returns the shortest list of (movie_id, person_id) pairs
-    that connect the source to the target.
-
-    If no possible path, returns None.
-    """
-    
-    # singly-linked list where parent is previous node, and state is (movie_id, person_id)
-    # on target found, backtrack parents and return an inversed list
-
-    state = (None, source)
-    cur = Node(state, None, None)
-    queue = QueueFrontier()
-    queue.add(cur)
-    visited = []
-    visited_persons = []
-    visited_movies = []
-    
-    while True:
-        
-        if cur.state[1] == target:
-            steps = []
-            
-            while cur.parent:
-                steps.append(cur.state)
-                cur = cur.parent
-            return steps[::-1]
-
-        if queue.empty(): # queue.empty doesn't work somehow
-            return None
-            
-        # Update frontier
-        neighbors =  neighbors_for_person(cur.state[1])
-        for neighbor in neighbors:
-            if not neighbor in visited:
-                visited.append(neighbor)
-                new_node = Node(neighbor, cur, None)
-                queue.add(new_node)
-        
-        # Move one step
-        cur = queue.remove()
-
 def person_id_for_name(name):
     """
     Returns the IMDB id for a person's name,
@@ -136,8 +92,7 @@ def person_id_for_name(name):
     if len(person_ids) == 0:
         return None
     elif len(person_ids) > 1:
-        
-        (f"Which '{name}'?")
+        print(f"Which '{name}'?")
         for person_id in person_ids:
             person = people[person_id]
             name = person["name"]
@@ -166,6 +121,43 @@ def neighbors_for_person(person_id):
             neighbors.add((movie_id, person_id))
     return neighbors
 
+
+def shortest_path(source, target):
+    """
+    Returns the shortest list of (movie_id, person_id) pairs
+    that connect the source to the target.
+
+    If no possible path, returns None.
+    """
+    sf = StackFrontier()
+
+    start = Node(source, None, None)
+    sf.add(start)
+
+    explored = set()
+
+    while True:
+        try:
+            nd = sf.remove()
+        except Exception:
+            break
+
+        for movie_id, person_id in neighbors_for_person(nd.state):
+
+            if person_id not in explored: #working
+                child = Node(person_id,nd,movie_id)
+                sf.add(child)
+
+            if target == person_id:
+                nd = sf.remove()
+                pairs=[]
+
+                while nd.parent is not None:
+                    pairs.append([nd.action, nd.state])
+                    nd = nd.parent
+                pairs.reverse()
+                return(pairs)
+            explored.add(nd.state)
 
 if __name__ == "__main__":
     main()
