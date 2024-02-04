@@ -99,6 +99,7 @@ def shortest_path(source, target):
     cur = Node(state, None, None)
     queue = QueueFrontier()
     queue.add(cur)
+    visited = []
     visited_persons = []
     visited_movies = []
     
@@ -118,10 +119,8 @@ def shortest_path(source, target):
         # Update frontier
         neighbors =  neighbors_for_person(cur.state[1])
         for neighbor in neighbors:
-            if neighbor[0] not in visited_movies and neighbor[1] not in visited_persons:
-                visited_movies.append(neighbor[0])
-                visited_persons.append(neighbor[1])
-                
+            if not neighbor in visited:
+                visited.append(neighbor)
                 new_node = Node(neighbor, cur, None)
                 queue.add(new_node)
         
