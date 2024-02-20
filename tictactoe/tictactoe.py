@@ -3,6 +3,7 @@ Tic Tac Toe Player
 """
 
 import math
+import copy
 
 X = "X"
 O = "O"
@@ -128,7 +129,7 @@ def minimax(board):
     available_actions = actions(board)
 
     # simulate my moves and adversary moves
-    simulated_board = board.copy()
+    simulated_board = copy.deepcopy(board)
 
     for action in available_actions:
         board_1 = result(simulated_board, action)
