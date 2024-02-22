@@ -47,11 +47,11 @@ def actions(board):
     j = -1
     for row in board:
         i += 1
+        j = -1
         for target in row:
             j += 1
             if target == None:
                 available_actions.append((i,j))
-
     return available_actions
 
 def result(board, action):
@@ -121,28 +121,96 @@ def utility(board):
         return 0
 
 
-def minimax(board):
+def minimax_working(board):
     """
     Returns the optimal action for the current player on the board.
     """
+    if terminal(board):
+        return None
+    
     me = player(board)
     available_actions = actions(board)
 
     # simulate my moves and adversary moves
-    simulated_board = copy.deepcopy(board)
-
     for action in available_actions:
+        simulated_board = copy.deepcopy(board)
         board_1 = result(simulated_board, action)
         if me == winner(board_1):
             return action
 
+        # Check every enemy actions
         enemy = player(board_1)
         enemy_actions = actions(board_1)
         
+        enemy_wins = False
         for enemy_action in enemy_actions:
-            board_2 = result(board_1, enemy_action)
-            if winner(board_2) != enemy:
-                print(f"board: {board}")
-                print(f"simulated_board {simulated_board}")
-                return action
+            simulated_board2 = copy.deepcopy(board_1)
+            board_2 = result(simulated_board2, enemy_action)
+
+            #logic here
+            if winner(board_2) == enemy:
+                enemy_wins = True
+        
+        if enemy_wins == False:
+            return action
+        
     return action
+
+def minimax(board):
+    simulated_board = copy.deepcopy(board)
+    me = player(board)
+    available_actions = actions(board)
+
+    action_to_take = minimax_depth(simulated_board)
+    if action_to_take == None:
+        return available_actions[0]
+    else:
+        return action_to_take
+    
+def minimax_depth(board):
+    simulated_board = copy.deepcopy(board)
+    available_actions = actions(simulated_board)
+    me = player(simulated_board)
+
+    for action in available_actions:
+        simulated_board = result(simulated_board, action)
+        if winner(simulated_board) == me:
+            return action
+        
+        return minimax_depth(simulated_board)
+
+def minimax_dfs(board):
+    
+    me = player(board)
+    my_actions_1 = actions(board)
+    priority_action = None
+
+    for my_action_1 in my_actions_1:
+        simulated_board_1 = copy.deepcopy(board)
+        simulated_board_1 = result(simulated_board_1, my_action_1)    
+        if winner(simulated_board_1) == me:
+            return my_action_1
+        enemy = player(simulated_board_1)
+        enemy_actions_1 = actions(simulated_board_1)
+
+        for enemy_action_1 in enemy_actions_1:
+            simulated_board_2 = copy.deepcopy(simulated_board_1)
+            simulated_board_2 = result(simulated_board_2, enemy_action_1)
+            if winner(simulated_board_2) == enemy:
+                priority_action = enemy_action_1
+
+            me = player(simulated_board_2)
+            my_actions_2 = actions(simulated_board_2)
+
+            if priority_action == None:
+                for my_action_2 in my_actions_2:
+                    simulated_board_3 = copy.deepcopy(simulated_board_2)
+                    simulated_board_3 = result(simulated_board_2, my_action_2)
+                    if winner(simulated_board_3) == me:
+                        priority_action = my_action_2
+
+    # this being a nested for-loop is a sign that I can simplify this
+    if priority_action:
+        return priority_action
+    else:
+        return my_action_1
