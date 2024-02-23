@@ -117,7 +117,7 @@ def utility(board):
         return 1
     elif winner(board) == O:
         return -1
-    elif terminal(board) == True:
+    else:
         return 0
 
 
@@ -157,16 +157,34 @@ def minimax_working(board):
     return action
 
 def minimax(board):
-    simulated_board = copy.deepcopy(board)
+    if terminal(board): return None
     me = player(board)
+    points = []
     available_actions = actions(board)
+    for action in available_actions:
+        sim = copy.deepcopy(board)
+        sim = result(sim,action)
+        points.append([minimaxer(sim),action])
 
-    action_to_take = minimax_depth(simulated_board)
-    if action_to_take == None:
-        return available_actions[0]
+
+    if me == X:
+        points = sorted(points, key=lambda x: (x[0], x[1][0]), reverse=True)    
     else:
-        return action_to_take
-    
+        points = sorted(points, key=lambda x: (x[0], x[1][0]))
+    print(points)    
+    return points[0][1]
+
+def minimaxer(board):
+    points = utility(board)
+    sim = copy.deepcopy(board)
+    available_actions = actions(sim)
+    for action in available_actions:
+        sim = result(sim,action)
+        points += utility(sim)
+        return points + minimaxer(sim)
+    return 0
+
+
 def minimax_depth(board):
     simulated_board = copy.deepcopy(board)
     available_actions = actions(simulated_board)

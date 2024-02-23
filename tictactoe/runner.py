@@ -43,6 +43,7 @@ while True:
         playX = mediumFont.render("Play as X", True, black)
         playXRect = playX.get_rect()
         playXRect.center = playXButton.center
+        
         pygame.draw.rect(screen, white, playXButton)
         screen.blit(playX, playXRect)
 
