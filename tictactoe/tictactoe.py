@@ -9,7 +9,6 @@ X = "X"
 O = "O"
 EMPTY = None
 
-
 def initial_state():
     """
     Returns starting state of the board.
@@ -24,6 +23,7 @@ def player(board):
     """
     count_x = 0
     count_o = 0
+    player = None
 
     for row in board:
         for column in row:
@@ -36,6 +36,7 @@ def player(board):
         player = O
     elif count_x == count_o:
         player = X
+    
     return player
 
 def actions(board):
@@ -58,13 +59,12 @@ def result(board, action):
     """
     Returns the board that results from making move (i, j) on the board.
     """
+
+    state = copy.deepcopy(board)
     i = action[0]
     j = action[1]
-    me = player(board)
-
-    board[i][j] = me
-
-    return board
+    state[i][j] = player(state)
+    return state
 
 def winner(board):
     """
@@ -96,7 +96,7 @@ def terminal(board):
     """
     Returns True if game is over, False otherwise.
     """
-    if winner(board) != None:
+    if winner(board):
         return True
     
     for rows in board:
@@ -105,9 +105,6 @@ def terminal(board):
                 return False
     
     return True
-
-
-
 
 def utility(board):
     """
@@ -120,115 +117,34 @@ def utility(board):
     else:
         return 0
 
-
-def minimax_working(board):
-    """
-    Returns the optimal action for the current player on the board.
-    """
+def max_value(board):
+    v = -math.inf
     if terminal(board):
-        return None
-    
-    me = player(board)
-    available_actions = actions(board)
+        return utility(board)
+    for action in actions(board):
+        v = max(v,min_value(result(board,action)))
+    return v
 
-    # simulate my moves and adversary moves
-    for action in available_actions:
-        simulated_board = copy.deepcopy(board)
-        board_1 = result(simulated_board, action)
-        if me == winner(board_1):
-            return action
-
-        # Check every enemy actions
-        enemy = player(board_1)
-        enemy_actions = actions(board_1)
-        
-        enemy_wins = False
-        for enemy_action in enemy_actions:
-            simulated_board2 = copy.deepcopy(board_1)
-            board_2 = result(simulated_board2, enemy_action)
-
-            #logic here
-            if winner(board_2) == enemy:
-                enemy_wins = True
-        
-        if enemy_wins == False:
-            return action
-        
-    return action
+def min_value(board):
+    v = math.inf
+    if terminal(board):
+        return utility(board)
+    for action in actions(board):
+        v = min(v,max_value(result(board,action)))
+    return v
 
 def minimax(board):
-    if terminal(board): return None
-    me = player(board)
+    if terminal(board):
+        return None
+
     points = []
-    available_actions = actions(board)
-    for action in available_actions:
-        sim = copy.deepcopy(board)
-        sim = result(sim,action)
-        points.append([minimaxer(sim),action])
-
-
-    if me == X:
-        points = sorted(points, key=lambda x: (x[0], x[1][0]), reverse=True)    
-    else:
-        points = sorted(points, key=lambda x: (x[0], x[1][0]))
-    print(points)    
-    return points[0][1]
-
-def minimaxer(board):
-    points = utility(board)
-    sim = copy.deepcopy(board)
-    available_actions = actions(sim)
-    for action in available_actions:
-        sim = result(sim,action)
-        points += utility(sim)
-        return points + minimaxer(sim)
-    return 0
-
-
-def minimax_depth(board):
-    simulated_board = copy.deepcopy(board)
-    available_actions = actions(simulated_board)
-    me = player(simulated_board)
-
-    for action in available_actions:
-        simulated_board = result(simulated_board, action)
-        if winner(simulated_board) == me:
-            return action
-        
-        return minimax_depth(simulated_board)
-
-def minimax_dfs(board):
     
-    me = player(board)
-    my_actions_1 = actions(board)
-    priority_action = None
+    for action in actions(board):
+        if player(board) == X:
+            points.append([min_value(result(board,action)),action])
+            points = sorted(points, key=lambda x: x[0], reverse=True)
+        elif player(board) == O:
+            points.append([max_value(result(board,action)),action])
+            points = sorted(points, key=lambda x: x[0])
 
-    for my_action_1 in my_actions_1:
-        simulated_board_1 = copy.deepcopy(board)
-        simulated_board_1 = result(simulated_board_1, my_action_1)    
-        if winner(simulated_board_1) == me:
-            return my_action_1
-        enemy = player(simulated_board_1)
-        enemy_actions_1 = actions(simulated_board_1)
-
-        for enemy_action_1 in enemy_actions_1:
-            simulated_board_2 = copy.deepcopy(simulated_board_1)
-            simulated_board_2 = result(simulated_board_2, enemy_action_1)
-            if winner(simulated_board_2) == enemy:
-                priority_action = enemy_action_1
-
-            me = player(simulated_board_2)
-            my_actions_2 = actions(simulated_board_2)
-
-            if priority_action == None:
-                for my_action_2 in my_actions_2:
-                    simulated_board_3 = copy.deepcopy(simulated_board_2)
-                    simulated_board_3 = result(simulated_board_2, my_action_2)
-                    if winner(simulated_board_3) == me:
-                        priority_action = my_action_2
-
-    # this being a nested for-loop is a sign that I can simplify this
-    if priority_action:
-        return priority_action
-    else:
-        return my_action_1
+    return points[0][1]
