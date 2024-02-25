@@ -50,27 +50,34 @@ knowledge2 = And(
 # B says "A said 'I am a knave'."
 # B says "C is a knave."
 # C says "A is a knight."
-
+sayA = AKnave
 sayA = Or(AKnight, AKnave)
 sayBA = BKnave
 sayB = CKnave
 sayC = AKnight
 knowledge3 = And(
     Or(AKnight, AKnave),
-    Not(And(AKnight,AKnave)),
-    
-    Or(BKnight,BKnave),
-    Not(And(BKnight,BKnave)),
-    
-    Or(CKnight,CKnave),
+    Or(BKnight, BKnave),
+    Or(CKnight, CKnave),
+    Not(And(AKnight, AKnave)),
+    Not(And(BKnight, BKnave)),
     Not(And(CKnight, CKnave)),
-    
-    Implication(And(BKnight, AKnight), sayBA),
-    Implication(And(BKnight, AKnave), Not(sayBA)),
-    Implication(And(BKnave, AKnave), sayBA),
-    Implication(And(BKnave,AKnight), Not(sayBA)),
+
     Implication(BKnight, sayB),
     Implication(BKnave, Not(sayB)),
+
+    Implication(BKnight, And(
+        Implication(AKnight, sayA),
+        Implication(AKnave, Not(sayA))
+        )
+    ),
+    # B says "A said 'I am a knave'."
+    # If B is lying, and A is not lying, A is a Knight.
+    Implication(BKnave, And(
+        Implication(AKnight, AKnight),
+        Implication(AKnave, Not(AKnight))
+        )
+    ),
     Implication(CKnight, sayC),
     Implication(CKnave, Not(sayC))
 )
