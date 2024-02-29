@@ -194,7 +194,7 @@ class MinesweeperAI():
             self.safes.add(cell)
         
 
-        # get neighbors
+        # get neighbors and add sentences
         undetermined = []
         kb = []
         for i in range(-1,1):
@@ -207,6 +207,22 @@ class MinesweeperAI():
         
         new_sentence = Sentence(undetermined, count)
         self.knowledge.add(new_sentence)
+        
+        
+        # get inferences
+        for a_sentence in self.knowledge:
+            a_cells = a_sentence[0]
+            a_count = a_sentence[1]
+            
+            for b_sentence in self.knowledge:
+                if a_cells != b_cells:
+                    if a_cells > b_cells:
+                        new_cells = a_cells - b_cells
+                        new_count = a_count - b_count
+                        new_sentence = Sentence(new_cells, new_count)
+                        self.knowledge.add(new_sentece)
+            
+            
 
     def make_safe_move(self):
         """
