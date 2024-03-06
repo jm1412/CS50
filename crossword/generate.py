@@ -268,6 +268,15 @@ class CrosswordCreator():
             return assignment
         var = self.select_unassigned_variable(assignment)
         for value in self.domains:
+            assignment[var] = value
+            if self.consistent(assignment):
+                result = self.backtrack(assignment)
+                if result != failure:
+                    return result
+                del assignment[var]
+            else:
+                del assignment[var]
+        return failure
             
 
 
