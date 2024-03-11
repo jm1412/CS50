@@ -1,6 +1,6 @@
 import sys
 
-from crossword import *
+from crossword import Crossword, Variable
 
 
 class CrosswordCreator():
@@ -156,10 +156,10 @@ class CrosswordCreator():
         while queue:
             x, y = queue.pop()
         
-        if revise(x,y):
+        if self.revise(x,y):
             if len(self.domains[x]) == 0:
                 return False
-            for z in self.neighbors(x)
+            for z in self.neighbors(x):
                 if z == y: break
                 queue.add(sorted((x,z)))
         return True
@@ -171,7 +171,7 @@ class CrosswordCreator():
         Return True if `assignment` is complete (i.e., assigns a value to each
         crossword variable); return False otherwise.
         """
-        if len(assignment) = len(self.domains):
+        if len(assignment) == len(self.domains):
             return True
         
         # maybe I should check if every value in key-value pair is not None
@@ -212,7 +212,7 @@ class CrosswordCreator():
         """
         order_domain_values = {}
         
-        words = self.domains[variable][1]
+        words = self.domains[var][1]
         neighbors = self.neighbors(var)
         
         for word in words:
@@ -271,12 +271,12 @@ class CrosswordCreator():
             assignment[var] = value
             if self.consistent(assignment):
                 result = self.backtrack(assignment)
-                if result != failure:
+                if result != "failure":
                     return result
                 del assignment[var]
             else:
                 del assignment[var]
-        return failure
+        return "failure"
             
 
 
