@@ -59,18 +59,48 @@ def load_data(filename):
     labels should be the corresponding list of labels, where each label
     is 1 if Revenue is true, and 0 otherwise.
     """
+    month_index = {
+        "Jan": 0,
+        "Feb": 1,
+        "Mar": 2,
+        "Apr": 3,
+        "May": 4,
+        "Jun": 5,
+        "Jul": 6,
+        "Aug": 7,
+        "Sep": 8,
+        "Oct": 9,
+        "Nov": 10,
+        "Dec": 11
+    }
+    evidence = []
+    labels = []
+    
     with open(filename) as f:
         reader = csv.reader(f)
         next(reader)
-
-        data = []
+        
         for row in reader:
-            data.append({
-                "evidence": [cell for cell in row[:17]],
-                "label": 1 if row[17] == "TRUE" else "0"
-            })
-            print(data)
-    return data
+            new_evidence = []
+            new_label = []
+            for index, cell in enumarete(row[:17])
+            if index == 10:
+                new_evidence.append(month_index[cell])
+            elif index in (0,2,4,11,12,13,14):
+                new_eviedence.append(int(cell))
+            elif index in (1,3,5,6,7,8,9):
+                new_evidence.append(float(cell))
+            elif index == 15:
+                if cell=="New_Visitor":
+                    new_evidence.append(0)
+                else:
+                    new_evidence.append(1)
+            elif index == 16:
+                weekend = 1 if cell == "TRUE" else 0
+                new_evidence.append(weekend)
+                
+        new_label = 1 if row[17]=="TRUE" else 0
+                
 
 
 def train_model(evidence, labels):
