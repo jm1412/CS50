@@ -65,7 +65,7 @@ def load_data(filename):
         "Mar": 2,
         "Apr": 3,
         "May": 4,
-        "Jun": 5,
+        "June": 5,
         "Jul": 6,
         "Aug": 7,
         "Sep": 8,
@@ -83,23 +83,27 @@ def load_data(filename):
         for row in reader:
             new_evidence = []
             new_label = []
-            for index, cell in enumarete(row[:17])
-            if index == 10:
-                new_evidence.append(month_index[cell])
-            elif index in (0,2,4,11,12,13,14):
-                new_eviedence.append(int(cell))
-            elif index in (1,3,5,6,7,8,9):
-                new_evidence.append(float(cell))
-            elif index == 15:
-                if cell=="New_Visitor":
-                    new_evidence.append(0)
-                else:
-                    new_evidence.append(1)
-            elif index == 16:
-                weekend = 1 if cell == "TRUE" else 0
-                new_evidence.append(weekend)
+            for index, cell in enumerate(row[:17]):
+                if index == 10:
+                    new_evidence.append(month_index[cell])
+                elif index in (0,2,4,11,12,13,14):
+                    new_evidence.append(int(cell))
+                elif index in (1,3,5,6,7,8,9):
+                    new_evidence.append(float(cell))
+                elif index == 15:
+                    if cell=="New_Visitor":
+                        new_evidence.append(0)
+                    else:
+                        new_evidence.append(1)
+                elif index == 16:
+                    weekend = 1 if cell == "TRUE" else 0
+                    new_evidence.append(weekend)
                 
-        new_label = 1 if row[17]=="TRUE" else 0
+            new_label = 1 if row[17]=="TRUE" else 0
+            evidence.append(new_evidence)
+            labels.append(new_label)
+        
+        return(evidence, labels)
                 
 
 
@@ -112,7 +116,7 @@ def train_model(evidence, labels):
     X_training = [row for row in evidence]
     y_training = [row for row in labels]
     model.fit(X_training, y_training)
-
+    return model
 
 def evaluate(labels, predictions):
     """
@@ -131,18 +135,23 @@ def evaluate(labels, predictions):
     """
     sens = 0
     spec = 0
-    total = 0
+    sens_total = 0
+    spec_total = 0
+
     for actual, predicted in zip(labels, predictions):
-        total += 1
-        if actual == predicted:
-            if actual == 1:
-                sens += 1
+        if actual == 1:
+            sens_total += 1
+        else:
+            spec_total += 1
+
+        if predicted == actual:
+            if predicted == 1:
+                sens+=1
             else:
-                spec += 1
+                spec+=1
 
-
-    sensitivity = float(100 * sens / total)
-    specificity = float(100 * spec / total)
+    sensitivity = float(sens / sens_total)
+    specificity = float(spec / spec_total)
     return((sensitivity, specificity))
 
 if __name__ == "__main__":
