@@ -103,10 +103,10 @@ class NimAI():
         """
         find = (state),(action)
         
-        if find not in q:
+        if find not in tuple(self.q):
             return 0
         
-        return q[find]
+        return self.q[find]
 
     def update_q_value(self, state, action, old_q, reward, future_rewards):
         """
@@ -123,10 +123,11 @@ class NimAI():
         `alpha` is the learning rate, and `new value estimate`
         is the sum of the current reward and estimated future rewards.
         """
-        old_value_estimate = self.q[state,action]
+        old_value_estimate = self.get_q_value(state,action)
         new_value_estimate = reward + self.best_future_reward(state)
         
-        self.q[state,action] = old_value_estimate + self.alpha * (new_value_estimate - old_value_estimate)
+        find = tuple(state), tuple(action)
+        self.q[find] = old_value_estimate + self.alpha * (new_value_estimate - old_value_estimate)
 
     def best_future_reward(self, state):
         """
@@ -169,27 +170,24 @@ class NimAI():
         options is an acceptable return value.
         """
 
-        available_actions = Nim.available_actions(state)
-        
+        available_actions = list(Nim.available_actions(state))
         # Choose random at self.epsilon probability
         if epsilon:
             if self.epsilon <= random.random():
-                return available_actions[
+                return tuple(available_actions[
                     random.randint(
                         0,len(available_actions)-1)
-                    ]
+                    ])
         
         # else, return best option
-        max_q = 0
+        max_q = -1
         best_move = None
-        
         for action in available_actions:
             current_q = self.get_q_value(state, action)
             if current_q > max_q:
                 max_q = current_q
                 best_move = action
-                
-        return best_move
+        return tuple(best_move)
 
 
 def train(n):
