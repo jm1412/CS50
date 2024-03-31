@@ -84,6 +84,10 @@ def get_model():
     The output layer should have `NUM_CATEGORIES` units, one for each category.
     """
     model = tf.keras.models.Sequential([
+        
+        # rescaling layer
+        tf.keras.layers.Rescaling(scale=1.0/255),
+        
         tf.keras.layers.Conv2D(
             32, (3, 3), activation="relu", input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)
         ),
@@ -95,8 +99,8 @@ def get_model():
         tf.keras.layers.Flatten(),
         
         # Add a hidden layer with dropout
-        tf.keras.layers.Dense(128, activation="relu"),
-        tf.keras.layers.Dropout(0.5),
+        tf.keras.layers.Dense(256, activation="relu"), # 256
+        tf.keras.layers.Dropout(0.1),
 
         # Add an output layer with output units for all 10 digits
         tf.keras.layers.Dense(NUM_CATEGORIES, activation="softmax")
