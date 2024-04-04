@@ -196,17 +196,40 @@ class MinesweeperAI():
 
         # get neighbors and add sentences
         undetermined = []
-        kb = []
+        mine_count = 0
+
         for i in range(-1,1):
             for j in range(-1,1):
-                if (i,j) == cell:
+                if (i,j) == cell: # Ignore self
                     break
-                if (i,j) not in Minesweeper.board():
+                if (i,j) not in Minesweeper.board(): # Ignore cells outside the board
                     break
-                undetermined.append((i,j))
+                if (i,j) in self.safes: # Ignore known safes
+                    break
+
+                if (i,j) in self.mines: # Count known mines
+                    mine_count += 1
+                else:
+                    undetermined.append(i,j)
+                
+        new_sentence = Sentence(undetermined, count - mine_count)
+        self.knowledge.append(new_sentence)
         
-        new_sentence = Sentence(undetermined, count)
-        self.knowledge.add(new_sentence)
+        # Update knowns
+        for sentence in self.knowledge:
+            if sentence.known_mines():
+                for cell in sentence.known_mines().copy():
+                    self.mark_mine(cell)
+            if sentence.known_safe():
+                for cell in sentence.known_safes().copy():
+                    self.mark_safe(cell)
+        
+        # Make inferrence
+        for sentence in self.knowledge:
+            if new_sentence.cells.issubset(sentence.cells) and new_sentence.count > 0
+            subset_sentence = sentence.cells.difference(new_sentence.cells)
+            new_sentence_subset = Sentence(list(subset_sentence), sentence.count - new_sentence.count)
+            self.knowledge.append(new_sentence_subset)
         
         
         # get inferences
